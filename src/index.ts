@@ -24,10 +24,12 @@ export async function run() {
     await page.keyboard.press("Tab");
 
     const focusableCount = await page.evaluate(() => {
+      // inject tabbable to get the focusable elements
       // @ts-ignore
       const focusableElements = injectedLibraries.tabbable(document);
       console.log(focusableElements);
       let focusableCount = 0;
+      // set data attribute to denote focuasable elements
       for (let element of focusableElements) {
         element.setAttribute("data-a11y-focusable", focusableCount);
         focusableCount++;
@@ -43,6 +45,21 @@ export async function run() {
         console.log(`tab count: ${data.tabCount}`);
         console.log(document.activeElement);
 
+        if (
+          document.activeElement?.getAttribute("data-a11y-focused") == "true"
+        ) {
+          //TODO: if data-a11y-trap is true, find the next focusable element that doesn't have the data-a11y-trap attribute, focus it, and continue on document.
+
+          document.activeElement?.setAttribute(
+            "style",
+            "border: 5px solid red"
+          );
+
+          document.activeElement?.setAttribute("data-a11y-trap", "true");
+        }
+
+        document.activeElement?.setAttribute("data-a11y-focused", "true");
+
         const focusableIndex = document.activeElement?.getAttribute(
           "data-a11y-focusable"
         );
@@ -53,20 +70,10 @@ export async function run() {
           document.activeElement?.getAttribute("data-a11y-focusable") !== "0"
         ) {
           if (focusableIndex !== null && focusableIndex !== undefined) {
-            if (focusableIndex < data.greatestFocusableIndex) {
-              console.log("discrepancy!");
-              console.log(focusableIndex);
-              console.log(data.greatestFocusableIndex);
-              console.log("discrepancy end!+++++++++++++++++++");
-              document.activeElement?.setAttribute(
-                "style",
-                "border: 5px solid red"
-              );
-            } else {
+            if (focusableIndex > data.greatestFocusableIndex) {
               data.greatestFocusableIndex = focusableIndex;
             }
           }
-
           return Promise.resolve(data);
         }
         data.isFinished = true;

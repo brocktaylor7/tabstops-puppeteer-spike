@@ -85,10 +85,12 @@ function run() {
                                 case 4:
                                     _a.sent();
                                     return [4 /*yield*/, page.evaluate(function () {
+                                            // inject tabbable to get the focusable elements
                                             // @ts-ignore
                                             var focusableElements = injectedLibraries.tabbable(document);
                                             console.log(focusableElements);
                                             var focusableCount = 0;
+                                            // set data attribute to denote focuasable elements
                                             for (var _i = 0, focusableElements_1 = focusableElements; _i < focusableElements_1.length; _i++) {
                                                 var element = focusableElements_1[_i];
                                                 element.setAttribute("data-a11y-focusable", focusableCount);
@@ -104,22 +106,21 @@ function run() {
                                 case 7:
                                     _a.sent();
                                     return [4 /*yield*/, page.evaluate(function (data) {
-                                            var _a, _b, _c;
+                                            var _a, _b, _c, _d, _e, _f;
                                             console.log("tab count: " + data.tabCount);
                                             console.log(document.activeElement);
-                                            var focusableIndex = (_a = document.activeElement) === null || _a === void 0 ? void 0 : _a.getAttribute("data-a11y-focusable");
+                                            if (((_a = document.activeElement) === null || _a === void 0 ? void 0 : _a.getAttribute("data-a11y-focused")) == "true") {
+                                                //TODO: if data-a11y-trap is true, find the next focusable element that doesn't have the data-a11y-trap attribute, focus it, and continue on document.
+                                                (_b = document.activeElement) === null || _b === void 0 ? void 0 : _b.setAttribute("style", "border: 5px solid red");
+                                                (_c = document.activeElement) === null || _c === void 0 ? void 0 : _c.setAttribute("data-a11y-trap", "true");
+                                            }
+                                            (_d = document.activeElement) === null || _d === void 0 ? void 0 : _d.setAttribute("data-a11y-focused", "true");
+                                            var focusableIndex = (_e = document.activeElement) === null || _e === void 0 ? void 0 : _e.getAttribute("data-a11y-focusable");
                                             console.log("focusableIndex");
                                             console.log(focusableIndex);
-                                            if (((_b = document.activeElement) === null || _b === void 0 ? void 0 : _b.getAttribute("data-a11y-focusable")) !== "0") {
+                                            if (((_f = document.activeElement) === null || _f === void 0 ? void 0 : _f.getAttribute("data-a11y-focusable")) !== "0") {
                                                 if (focusableIndex !== null && focusableIndex !== undefined) {
-                                                    if (focusableIndex < data.greatestFocusableIndex) {
-                                                        console.log("discrepancy!");
-                                                        console.log(focusableIndex);
-                                                        console.log(data.greatestFocusableIndex);
-                                                        console.log("discrepancy end!+++++++++++++++++++");
-                                                        (_c = document.activeElement) === null || _c === void 0 ? void 0 : _c.setAttribute("style", "border: 5px solid red");
-                                                    }
-                                                    else {
+                                                    if (focusableIndex > data.greatestFocusableIndex) {
                                                         data.greatestFocusableIndex = focusableIndex;
                                                     }
                                                 }
