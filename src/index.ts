@@ -129,8 +129,8 @@ export async function run() {
                 data.attemptedNonTrapFocusIndex = data.nextNonTrapElementIndex;
                 data.nextNonTrapElementSelector = '';
             }
-            // I've set a limit of 1000 tabs here, this can be removed, but it's a fallback for now.
-        } while (data.isFinished === false && data.tabCount < 1000);
+            // I've set a limit of 500 tabs here, this can be removed, but it's a fallback for now.
+        } while (data.isFinished === false && data.tabCount < 500);
 
         //identify elements with focus index but no data-a11y-focused attribute
         await page.evaluate(() => {

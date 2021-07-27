@@ -192,7 +192,7 @@ function run() {
                                     data.nextNonTrapElementSelector = '';
                                     _b.label = 10;
                                 case 10:
-                                    if (data.isFinished === false && data.tabCount < 1000) return [3 /*break*/, 6];
+                                    if (data.isFinished === false && data.tabCount < 500) return [3 /*break*/, 6];
                                     _b.label = 11;
                                 case 11: 
                                 //identify elements with focus index but no data-a11y-focused attribute
