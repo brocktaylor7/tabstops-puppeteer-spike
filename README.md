@@ -15,6 +15,8 @@ This POC currently detects the following (data attributes added for easy/accessi
 -   Elements that should be able to receive focus, but are not reachable via standard keyboard navigation (elements outlined in purple and also receive the `data-a11y-expected-focus-not-received` attribute).
 -   Whether the page has the same number of focusable elements as is expected from the DOM. (Outlines the body in green if so, and red if not. The document body also recieves the `data-tabstops-match-focusable-count` attribute with a value of `true` or `false`).
 
+Keyboard trap example webpage links were found on [CSUN's Universal Design Center](https://www.csun.edu/universal-design-center/web-accessibility-criteria-keyboard-traps)
+
 ## Build/Run
 
 ### Prerequisites

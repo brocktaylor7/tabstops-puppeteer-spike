@@ -68,10 +68,22 @@ function run() {
                                 case 0: return [4 /*yield*/, browser.newPage()];
                                 case 1:
                                     page = _b.sent();
+                                    // accessible page example
                                     // await page.goto('https://www.washington.edu/accesscomputing/AU/after.html');
+                                    // frozen element example
+                                    // await page.goto('https://interactiveaccessibility.com/education/training/ex7.1.html');
+                                    // honey trap (redirect) example
+                                    // await page.goto('http://aduggin.github.io/accessibility-fails/keyboardtrap.html');
+                                    // loop trap example
                                     return [4 /*yield*/, page.goto('https://accessibility.18f.gov/keyboard/#')];
                                 case 2:
+                                    // accessible page example
                                     // await page.goto('https://www.washington.edu/accesscomputing/AU/after.html');
+                                    // frozen element example
+                                    // await page.goto('https://interactiveaccessibility.com/education/training/ex7.1.html');
+                                    // honey trap (redirect) example
+                                    // await page.goto('http://aduggin.github.io/accessibility-fails/keyboardtrap.html');
+                                    // loop trap example
                                     _b.sent();
                                     return [4 /*yield*/, importLibsToPage(page)];
                                 case 3:
@@ -84,7 +96,7 @@ function run() {
                                         nextNonTrapElementIndex: null,
                                         attemptedNonTrapFocusIndex: null,
                                         greatestFocusedIndex: 0,
-                                        tags: ['data-a11y-focus-index', 'data-a11y-focused', 'data-a11y-trap'],
+                                        tagsToCleanup: ['data-a11y-focus-index', 'data-a11y-focused'],
                                     };
                                     return [4 /*yield*/, page.keyboard.press('Tab')];
                                 case 4:
@@ -188,6 +200,7 @@ function run() {
                                         var nonFocusedElements = document.querySelectorAll('[data-a11y-focus-index]:not([data-a11y-focused])');
                                         for (var i = 0; i < nonFocusedElements.length; i++) {
                                             nonFocusedElements[i].setAttribute('style', 'border: 5px solid purple');
+                                            nonFocusedElements[i].setAttribute('data-a11y-expected-focus-not-received', 'true');
                                         }
                                     })];
                                 case 12:
@@ -195,7 +208,7 @@ function run() {
                                     _b.sent();
                                     //clean up injected data attributes
                                     return [4 /*yield*/, page.evaluate(function (data) {
-                                            data.tags.forEach(function (tag) {
+                                            data.tagsToCleanup.forEach(function (tag) {
                                                 var elements = document.querySelectorAll("[" + tag + "]");
                                                 console.log(elements);
                                                 for (var i = 0; i < elements.length; i++) {
@@ -216,6 +229,7 @@ function run() {
                                             else {
                                                 document.body.setAttribute('style', 'border: 10px solid red');
                                             }
+                                            document.body.setAttribute('data-tabstops-match-focusable-count', tabsMatchFocusable);
                                         }, tabsMatchFocusable)];
                                 case 14:
                                     // if number of tabs matches the number of focusable elements, turn green, else turn red.

@@ -10,7 +10,16 @@ async function importLibsToPage(page: Page): Promise<void> {
 export async function run() {
     await puppeteer.launch({ headless: false, defaultViewport: null }).then(async (browser) => {
         const page = await browser.newPage();
+        // accessible page example
         // await page.goto('https://www.washington.edu/accesscomputing/AU/after.html');
+
+        // frozen element example
+        // await page.goto('https://interactiveaccessibility.com/education/training/ex7.1.html');
+
+        // honey trap (redirect) example
+        // await page.goto('http://aduggin.github.io/accessibility-fails/keyboardtrap.html');
+
+        // loop trap example
         await page.goto('https://accessibility.18f.gov/keyboard/#');
 
         await importLibsToPage(page);
