@@ -47,7 +47,7 @@ function importLibsToPage(page) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, page.addScriptTag({
-                        path: path_1.default.resolve("dist/browser-imports.js"),
+                        path: path_1.default.resolve('dist/browser-imports.js'),
                     })];
                 case 1:
                     _a.sent();
@@ -61,29 +61,35 @@ function run() {
         var _this = this;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, puppeteer_1.default.launch({ headless: false }).then(function (browser) { return __awaiter(_this, void 0, void 0, function () {
-                        var page, data, focusableCount, tabsMatchFocusable;
-                        return __generator(this, function (_a) {
-                            switch (_a.label) {
+                case 0: return [4 /*yield*/, puppeteer_1.default.launch({ headless: false, defaultViewport: null }).then(function (browser) { return __awaiter(_this, void 0, void 0, function () {
+                        var page, data, _a, focusedElement, tabsMatchFocusable;
+                        return __generator(this, function (_b) {
+                            switch (_b.label) {
                                 case 0: return [4 /*yield*/, browser.newPage()];
                                 case 1:
-                                    page = _a.sent();
-                                    // await page.goto("https://www.washington.edu/accesscomputing/AU/after.html");
-                                    return [4 /*yield*/, page.goto("https://accessibility.18f.gov/keyboard/#")];
+                                    page = _b.sent();
+                                    // await page.goto('https://www.washington.edu/accesscomputing/AU/after.html');
+                                    return [4 /*yield*/, page.goto('https://accessibility.18f.gov/keyboard/#')];
                                 case 2:
-                                    // await page.goto("https://www.washington.edu/accesscomputing/AU/after.html");
-                                    _a.sent();
+                                    // await page.goto('https://www.washington.edu/accesscomputing/AU/after.html');
+                                    _b.sent();
                                     return [4 /*yield*/, importLibsToPage(page)];
                                 case 3:
-                                    _a.sent();
+                                    _b.sent();
                                     data = {
                                         isFinished: false,
                                         tabCount: 0,
-                                        greatestFocusableIndex: 0,
+                                        focusableCount: 0,
+                                        nextNonTrapElementSelector: '',
+                                        nextNonTrapElementIndex: null,
+                                        attemptedNonTrapFocusIndex: null,
+                                        greatestFocusedIndex: 0,
+                                        tags: ['data-a11y-focus-index', 'data-a11y-focused', 'data-a11y-trap'],
                                     };
-                                    return [4 /*yield*/, page.keyboard.press("Tab")];
+                                    return [4 /*yield*/, page.keyboard.press('Tab')];
                                 case 4:
-                                    _a.sent();
+                                    _b.sent();
+                                    _a = data;
                                     return [4 /*yield*/, page.evaluate(function () {
                                             // inject tabbable to get the focusable elements
                                             // @ts-ignore
@@ -93,35 +99,67 @@ function run() {
                                             // set data attribute to denote focuasable elements
                                             for (var _i = 0, focusableElements_1 = focusableElements; _i < focusableElements_1.length; _i++) {
                                                 var element = focusableElements_1[_i];
-                                                element.setAttribute("data-a11y-focusable", focusableCount);
+                                                element.setAttribute('data-a11y-focus-index', focusableCount);
                                                 focusableCount++;
                                             }
                                             return Promise.resolve(focusableCount);
                                         })];
                                 case 5:
-                                    focusableCount = _a.sent();
-                                    console.log("focusableCount: " + focusableCount);
-                                    _a.label = 6;
-                                case 6: return [4 /*yield*/, page.keyboard.press("Tab")];
+                                    _a.focusableCount = _b.sent();
+                                    console.log("focusableCount: " + data.focusableCount);
+                                    _b.label = 6;
+                                case 6: return [4 /*yield*/, page.keyboard.press('Tab')];
                                 case 7:
-                                    _a.sent();
+                                    _b.sent();
                                     return [4 /*yield*/, page.evaluate(function (data) {
-                                            var _a, _b, _c, _d, _e, _f;
+                                            var _a, _b, _c, _d, _e, _f, _g, _h;
                                             console.log("tab count: " + data.tabCount);
                                             console.log(document.activeElement);
-                                            if (((_a = document.activeElement) === null || _a === void 0 ? void 0 : _a.getAttribute("data-a11y-focused")) == "true") {
-                                                //TODO: if data-a11y-trap is true, find the next focusable element that doesn't have the data-a11y-trap attribute, focus it, and continue on document.
-                                                (_b = document.activeElement) === null || _b === void 0 ? void 0 : _b.setAttribute("style", "border: 5px solid red");
-                                                (_c = document.activeElement) === null || _c === void 0 ? void 0 : _c.setAttribute("data-a11y-trap", "true");
+                                            //////////// START Handle Keyboard Trap ///////////
+                                            ////////////////////////////////////////////////////////
+                                            if (((_a = document.activeElement) === null || _a === void 0 ? void 0 : _a.getAttribute('data-a11y-focused')) == 'true') {
+                                                // if data-a11y-trap is true, find the next focusable element that doesn't have the data-a11y-trap attribute, focus it, and continue on document.
+                                                // after you'll want to remove the tab count limit of 50 that is currently set below.
+                                                if (((_b = document.activeElement) === null || _b === void 0 ? void 0 : _b.getAttribute('data-a11y-trap')) == 'true') {
+                                                    console.log('find next non-trap element');
+                                                    var currentFocusIndexString = (_c = document.activeElement) === null || _c === void 0 ? void 0 : _c.getAttribute('data-a11y-focus-index');
+                                                    if (currentFocusIndexString != null) {
+                                                        var currentFocusIndex = parseInt(currentFocusIndexString);
+                                                        while (currentFocusIndex != data.focusableCount) {
+                                                            if (currentFocusIndex == data.focusableCount - 1) {
+                                                                // Focus trap on last focusable element, so we're done scanning.
+                                                                return Promise.resolve(data);
+                                                            }
+                                                            var nextFocusableIndex = currentFocusIndex + 1;
+                                                            if (nextFocusableIndex == data.attemptedNonTrapFocusIndex) {
+                                                                nextFocusableIndex++;
+                                                            }
+                                                            console.log(nextFocusableIndex);
+                                                            var nextNonTrapElement = document.querySelector("[data-a11y-focus-index=\"" + nextFocusableIndex + "\"]:not([data-a11y-trap])");
+                                                            if (nextNonTrapElement != null) {
+                                                                console.log('next non-trap element');
+                                                                console.log(nextNonTrapElement);
+                                                                data.nextNonTrapElementIndex = nextFocusableIndex;
+                                                                data.nextNonTrapElementSelector = "[data-a11y-focus-index=\"" + nextFocusableIndex + "\"]";
+                                                                break;
+                                                            }
+                                                            currentFocusIndex++;
+                                                        }
+                                                    }
+                                                }
+                                                (_d = document.activeElement) === null || _d === void 0 ? void 0 : _d.setAttribute('style', 'border: 5px solid red');
+                                                (_e = document.activeElement) === null || _e === void 0 ? void 0 : _e.setAttribute('data-a11y-trap', 'true');
                                             }
-                                            (_d = document.activeElement) === null || _d === void 0 ? void 0 : _d.setAttribute("data-a11y-focused", "true");
-                                            var focusableIndex = (_e = document.activeElement) === null || _e === void 0 ? void 0 : _e.getAttribute("data-a11y-focusable");
-                                            console.log("focusableIndex");
-                                            console.log(focusableIndex);
-                                            if (((_f = document.activeElement) === null || _f === void 0 ? void 0 : _f.getAttribute("data-a11y-focusable")) !== "0") {
+                                            //////////// END Handle Keyboard Trap ////////////
+                                            ////////////////////////////////////////////////////////
+                                            // mark element as focused
+                                            (_f = document.activeElement) === null || _f === void 0 ? void 0 : _f.setAttribute('data-a11y-focused', 'true');
+                                            var focusableIndex = (_g = document.activeElement) === null || _g === void 0 ? void 0 : _g.getAttribute('data-a11y-focus-index');
+                                            // Check to see if we've reached the last focusable element, if not return (and continue loop), if so then return (and end loop).
+                                            if (((_h = document.activeElement) === null || _h === void 0 ? void 0 : _h.getAttribute('data-a11y-focus-index')) !== '0') {
                                                 if (focusableIndex !== null && focusableIndex !== undefined) {
-                                                    if (focusableIndex > data.greatestFocusableIndex) {
-                                                        data.greatestFocusableIndex = focusableIndex;
+                                                    if (focusableIndex > data.greatestFocusedIndex) {
+                                                        data.greatestFocusedIndex = focusableIndex;
                                                     }
                                                 }
                                                 return Promise.resolve(data);
@@ -130,25 +168,58 @@ function run() {
                                             return Promise.resolve(data);
                                         }, data)];
                                 case 8:
-                                    data = _a.sent();
+                                    data = _b.sent();
                                     data.tabCount++;
-                                    _a.label = 9;
+                                    if (!(data.nextNonTrapElementSelector.length > 0)) return [3 /*break*/, 10];
+                                    console.log('trying to focus next element after keyboard trap');
+                                    console.log(data.nextNonTrapElementSelector);
+                                    return [4 /*yield*/, page.focus(data.nextNonTrapElementSelector)];
                                 case 9:
-                                    if (data.isFinished === false && data.tabCount < 50) return [3 /*break*/, 6];
-                                    _a.label = 10;
+                                    focusedElement = _b.sent();
+                                    data.attemptedNonTrapFocusIndex = data.nextNonTrapElementIndex;
+                                    data.nextNonTrapElementSelector = '';
+                                    _b.label = 10;
                                 case 10:
+                                    if (data.isFinished === false && data.tabCount < 1000) return [3 /*break*/, 6];
+                                    _b.label = 11;
+                                case 11: 
+                                //identify elements with focus index but no data-a11y-focused attribute
+                                return [4 /*yield*/, page.evaluate(function () {
+                                        var nonFocusedElements = document.querySelectorAll('[data-a11y-focus-index]:not([data-a11y-focused])');
+                                        for (var i = 0; i < nonFocusedElements.length; i++) {
+                                            nonFocusedElements[i].setAttribute('style', 'border: 5px solid purple');
+                                        }
+                                    })];
+                                case 12:
+                                    //identify elements with focus index but no data-a11y-focused attribute
+                                    _b.sent();
+                                    //clean up injected data attributes
+                                    return [4 /*yield*/, page.evaluate(function (data) {
+                                            data.tags.forEach(function (tag) {
+                                                var elements = document.querySelectorAll("[" + tag + "]");
+                                                console.log(elements);
+                                                for (var i = 0; i < elements.length; i++) {
+                                                    elements[i].removeAttribute(tag);
+                                                }
+                                            });
+                                        }, data)];
+                                case 13:
+                                    //clean up injected data attributes
+                                    _b.sent();
                                     console.log("tabCount: " + data.tabCount);
-                                    tabsMatchFocusable = data.tabCount === focusableCount + 1;
+                                    tabsMatchFocusable = data.tabCount === data.focusableCount + 1;
+                                    // if number of tabs matches the number of focusable elements, turn green, else turn red.
                                     return [4 /*yield*/, page.evaluate(function (tabsMatchFocusable) {
                                             if (tabsMatchFocusable) {
-                                                document.body.setAttribute("style", "border: 10px solid green");
+                                                document.body.setAttribute('style', 'border: 10px solid green');
                                             }
                                             else {
-                                                document.body.setAttribute("style", "border: 10px solid red");
+                                                document.body.setAttribute('style', 'border: 10px solid red');
                                             }
                                         }, tabsMatchFocusable)];
-                                case 11:
-                                    _a.sent();
+                                case 14:
+                                    // if number of tabs matches the number of focusable elements, turn green, else turn red.
+                                    _b.sent();
                                     return [2 /*return*/];
                             }
                         });
