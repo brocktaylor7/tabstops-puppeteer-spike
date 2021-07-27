@@ -23,7 +23,7 @@ export async function run() {
             nextNonTrapElementIndex: null,
             attemptedNonTrapFocusIndex: null,
             greatestFocusedIndex: 0,
-            tags: ['data-a11y-focus-index', 'data-a11y-focused', 'data-a11y-trap'],
+            tagsToCleanup: ['data-a11y-focus-index', 'data-a11y-focused'],
         };
 
         await page.keyboard.press('Tab');
@@ -128,12 +128,13 @@ export async function run() {
             const nonFocusedElements = document.querySelectorAll('[data-a11y-focus-index]:not([data-a11y-focused])');
             for (let i = 0; i < nonFocusedElements.length; i++) {
                 nonFocusedElements[i].setAttribute('style', 'border: 5px solid purple');
+                nonFocusedElements[i].setAttribute('data-a11y-expected-focus-not-received', 'true');
             }
         });
 
         //clean up injected data attributes
         await page.evaluate((data) => {
-            data.tags.forEach((tag: string) => {
+            data.tagsToCleanup.forEach((tag: string) => {
                 const elements = document.querySelectorAll(`[${tag}]`);
                 console.log(elements);
                 for (let i = 0; i < elements.length; i++) {
@@ -153,6 +154,7 @@ export async function run() {
             } else {
                 document.body.setAttribute('style', 'border: 10px solid red');
             }
+            document.body.setAttribute('data-tabstops-match-focusable-count', tabsMatchFocusable);
         }, tabsMatchFocusable);
     });
 }

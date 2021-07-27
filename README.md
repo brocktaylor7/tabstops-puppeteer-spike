@@ -8,11 +8,12 @@ From https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent:
 
 > Note: Manually firing an event does not generate the default action associated with that event. For example, manually firing a key event does not cause that letter to appear in a focused text input. In the case of UI events, this is important for security reasons, as it prevents scripts from simulating user actions that interact with the browser itself.
 
-This POC currently detects the following:
+This POC currently detects the following (data attributes added for easy/accessible querying):
 
--   Keyboard focus traps (outlined in red, and also receive the data-a11y-trap attribute)
--   Elements that should be able to receive focus, but are not reachable via standard keyboard navigation (outlined in purple).
--   Whether the page has the same number of focusable elements as is expected from the DOM. (Outlines the body in green if so, and red if not.)
+-   Keyboard focus traps (elements outlined in red, and also receive the `data-a11y-trap` attribute)
+    -   Note: A mechanism is built-in to break out of the keyboard traps to continue testing the rest of the page
+-   Elements that should be able to receive focus, but are not reachable via standard keyboard navigation (elements outlined in purple and also receive the `data-a11y-expected-focus-not-received` attribute).
+-   Whether the page has the same number of focusable elements as is expected from the DOM. (Outlines the body in green if so, and red if not. The document body also recieves the `data-tabstops-match-focusable-count` attribute with a value of `true` or `false`).
 
 ## Build/Run
 
