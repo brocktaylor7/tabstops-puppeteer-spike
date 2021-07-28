@@ -27,12 +27,10 @@ You will need to have node.js and npm installed. During development I was using 
 
 -   Install packages using `npm install`
 -   Install rollup globally: `npm install -g rollup`
--   bundle the tabbable library using rollup: `rollup -c`
-    -   The `-c` flag is used to tell rollup to use the `rollup.config.js` configuration file.
+-   bundle the tabbable library and build the typescript: `npm run build`
     -   This only needs to be done once, unless additional libraries need to be injected into the browser page. Currently only the [tabbable](https://github.com/focus-trap/tabbable) library is injected.
--   bundle the typescript: `npx tsc`
-    -   Alternatively, for development you can do `npx tsc -w` to watch for changes and rebuild.
+    -   Alternatively, for development you can do `npm run dev` to watch for changes and rebuild.
 
 ### Run
 
-Once you have completed the build steps above, you can run the application using `node dist/index.js`.
+Once you have completed the build steps above, you can run the application using `npm start`.
