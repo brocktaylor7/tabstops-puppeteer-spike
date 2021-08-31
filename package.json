@@ -9,7 +9,10 @@
         "tabbable": "^5.2.0",
         "typescript": "^4.3.5"
     },
-    "devDependencies": {},
+    "devDependencies": {
+        "@rollup/plugin-commonjs": "^20.0.0",
+        "@rollup/plugin-node-resolve": "^13.0.4"
+    },
     "scripts": {
         "build": "rollup -c && npx tsc",
         "dev": "rollup -c && npx tsc -w",
